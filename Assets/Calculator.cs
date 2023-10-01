@@ -5,15 +5,15 @@ using UnityEngine;
 
 public class Calculator : MonoBehaviour
 {
+    private const int ERROR_FONT_SIZE = 20;
+    private const int FONT_SIZE = 40;
     public TextMeshProUGUI inputField;
     public TextMeshProUGUI outputField;
     private readonly RpnEvaluator _rpnEvaluator = new();
-    private readonly int ERROR_FONT_SIZE = 20;
-    private readonly int FONT_SIZE = 40;
     private Fraction _currentFraction = new();
     private InputState _currentState = InputState.Numerator;
     private List<string> _equationParts = new();
-    private Stack<Fraction> _fractionStack = new();
+    private Queue<Fraction> _fractionQueue = new();
     private Queue<string> _operatorQueue = new();
 
     public void UpdateInput(string newText)
@@ -51,11 +51,34 @@ public class Calculator : MonoBehaviour
     {
         try
         {
-            _fractionStack.Push(_currentFraction);
-            var result = _rpnEvaluator.Evaluate(_fractionStack, _operatorQueue);
+            _fractionQueue.Enqueue(_currentFraction);
+            var result = _rpnEvaluator.Evaluate(_fractionQueue, _operatorQueue);
+            string res;
+            switch (result.Numerator)
+            {
+                case < 0:
+                    result.Numerator *= -1;
+                    res = "-" + result.Simplify();
+                    break;
+                default:
+                {
+                    if (result.Denominator < 0)
+                    {
+                        result.Denominator *= -1;
+                        res = "-" + result.Simplify();
+                    }
+                    else
+                    {
+                        res = result.Simplify().ToString();
+                    }
+
+                    break;
+                }
+            }
+
             if (!_currentFraction.IsNonEmpty()) return;
             inputField.text =
-                $"<align=left>{inputField.text}</align>\n<align=right>= {result.Simplify()}</align>";
+                $"<align=left>{inputField.text}</align>\n<align=right>= {res}</align>";
             outputField.text = inputField.text;
         }
         catch (Exception e)
@@ -69,7 +92,7 @@ public class Calculator : MonoBehaviour
     {
         if (_currentFraction.IsNonEmpty())
         {
-            _fractionStack.Push(_currentFraction);
+            _fractionQueue.Enqueue(_currentFraction);
             _equationParts.Add(_currentFraction.ToString());
             _currentFraction = new Fraction();
         }
@@ -130,7 +153,7 @@ public class Calculator : MonoBehaviour
     private void ClearText()
     {
         _currentFraction = new Fraction();
-        _fractionStack = new Stack<Fraction>();
+        _fractionQueue = new Queue<Fraction>();
         _equationParts = new List<string>();
         _operatorQueue = new Queue<string>();
 

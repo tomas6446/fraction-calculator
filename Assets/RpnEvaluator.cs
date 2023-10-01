@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 public class RpnEvaluator
 {
-    public Fraction Evaluate(Stack<Fraction> fractions, Queue<string> operators)
+    public Fraction Evaluate(Queue<Fraction> fractions, Queue<string> operators)
     {
         var resultStack = new Stack<Fraction>();
 
         while (fractions.Count > 0)
         {
-            var current = fractions.Pop();
+            var current = fractions.Dequeue();
             if (current.Numerator == 0 || current.Denominator == 0)
                 throw new DivideByZeroException("Denominator cannot be zero");
             if (operators.Count > 0 && resultStack.Count > 0)
