@@ -2,7 +2,7 @@
 
 A simple calculator application for performing arithmetic operations and evaluating expressions using fractions.
 
-![calculator](https://github.com/tomas6446/fraction-calculator/assets/77100735/f5e1b5df-38c3-424f-85fa-2a4c65ca03b8)
+![calculator](https://github.com/tomas6446/fraction-calculator/assets/77100735/e19cb299-b936-4762-b01d-984f78699ce5)
 
 ## Features
 
