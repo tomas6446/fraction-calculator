@@ -8,11 +8,13 @@ public class Calculator : MonoBehaviour
     public TextMeshProUGUI inputField;
     public TextMeshProUGUI outputField;
     private readonly RpnEvaluator _rpnEvaluator = new();
+    private readonly int ERROR_FONT_SIZE = 20;
+    private readonly int FONT_SIZE = 40;
     private Fraction _currentFraction = new();
     private InputState _currentState = InputState.Numerator;
     private List<string> _equationParts = new();
-    private List<Fraction> _fractionList = new();
-    private Stack<string> _operatorStack = new();
+    private Stack<Fraction> _fractionStack = new();
+    private Queue<string> _operatorQueue = new();
 
     public void UpdateInput(string newText)
     {
@@ -24,7 +26,7 @@ public class Calculator : MonoBehaviour
             case "AC":
                 ClearText();
                 return;
-            case "C":
+            case "CLR":
                 ClearLastCharacter();
                 return;
             case "<-":
@@ -43,22 +45,23 @@ public class Calculator : MonoBehaviour
         }
 
         HandleText(newText);
-        UpdateInputField();
     }
 
     private void CalculateResult()
     {
         try
         {
-            _fractionList.Add(_currentFraction);
-            var result = _rpnEvaluator.Evaluate(_fractionList, _operatorStack);
+            _fractionStack.Push(_currentFraction);
+            var result = _rpnEvaluator.Evaluate(_fractionStack, _operatorQueue);
+            if (!_currentFraction.IsNonEmpty()) return;
             inputField.text =
-                $"<align=left>{inputField.text} =</align>\n<align=right>{result}</align>";
-            outputField.text += inputField.text;
+                $"<align=left>{inputField.text}</align>\n<align=right>= {result.Simplify()}</align>";
+            outputField.text = inputField.text;
         }
         catch (Exception e)
         {
-            inputField.text = $"Error: {e.Message}";
+            inputField.fontSize = ERROR_FONT_SIZE;
+            inputField.text = $"<align=left>Error: {e.Message}</align>";
         }
     }
 
@@ -66,13 +69,13 @@ public class Calculator : MonoBehaviour
     {
         if (_currentFraction.IsNonEmpty())
         {
-            _fractionList.Add(_currentFraction);
+            _fractionStack.Push(_currentFraction);
             _equationParts.Add(_currentFraction.ToString());
             _currentFraction = new Fraction();
         }
 
         _equationParts.Add(operatorText);
-        _operatorStack.Push(operatorText);
+        _operatorQueue.Enqueue(operatorText);
 
         _currentFraction = new Fraction();
         _currentState = InputState.Numerator;
@@ -127,9 +130,9 @@ public class Calculator : MonoBehaviour
     private void ClearText()
     {
         _currentFraction = new Fraction();
-        _fractionList = new List<Fraction>();
+        _fractionStack = new Stack<Fraction>();
         _equationParts = new List<string>();
-        _operatorStack = new Stack<string>();
+        _operatorQueue = new Queue<string>();
 
         inputField.text = "";
         _currentState = InputState.Numerator;
@@ -137,13 +140,17 @@ public class Calculator : MonoBehaviour
 
     private void ClearLastCharacter()
     {
+        ClearText();
+        outputField.text = "";
     }
 
     private void UpdateInputField()
     {
         var displayText = string.Join(" ", _equationParts);
-        if (_currentFraction.IsNonEmpty()) displayText += " " + _currentFraction;
+        if (_currentFraction.IsNonEmpty() || _currentState == InputState.Numerator)
+            displayText += " " + _currentFraction;
         inputField.text = displayText.Trim();
+        inputField.fontSize = FONT_SIZE;
     }
 
     private enum InputState

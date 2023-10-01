@@ -3,44 +3,35 @@ using System.Collections.Generic;
 
 public class RpnEvaluator
 {
-    public Fraction Evaluate(List<Fraction> fractions, Stack<string> operators)
+    public Fraction Evaluate(Stack<Fraction> fractions, Queue<string> operators)
     {
-        var stack = new Stack<Fraction>();
+        var resultStack = new Stack<Fraction>();
 
-        foreach (var fraction in fractions)
+        while (fractions.Count > 0)
         {
-            stack.Push(fraction);
-
-            if (stack.Count >= 2 && operators.Count > 0)
+            var current = fractions.Pop();
+            if (current.Numerator == 0 || current.Denominator == 0)
+                throw new DivideByZeroException("Denominator cannot be zero");
+            if (operators.Count > 0 && resultStack.Count > 0)
             {
-                var operatorSymbol = operators.Pop();
-                var b = stack.Pop();
-                var a = stack.Pop();
-
-                switch (operatorSymbol)
+                var operatorSymbol = operators.Dequeue();
+                var a = resultStack.Pop();
+                current = operatorSymbol switch
                 {
-                    case "+":
-                        stack.Push(a + b);
-                        break;
-                    case "-":
-                        stack.Push(a - b);
-                        break;
-                    case "*":
-                        stack.Push(a * b);
-                        break;
-                    case "/":
-                        if (b.Numerator == 0)
-                            throw new DivideByZeroException("Denominator cannot be zero");
-                        stack.Push(a / b);
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Unknown operator: {operatorSymbol}");
-                }
+                    "+" => a + current,
+                    "-" => a - current,
+                    "*" => a * current,
+                    "/" => a / current,
+                    _ => throw new InvalidOperationException($"Unknown operator: {operatorSymbol}")
+                };
             }
+
+            resultStack.Push(current);
         }
 
-        if (stack.Count != 1 || operators.Count != 0) throw new InvalidOperationException("Invalid expression");
+        if (resultStack.Count != 1 || operators.Count != 0)
+            throw new InvalidOperationException("Invalid expression");
 
-        return stack.Pop();
+        return resultStack.Pop();
     }
 }
