@@ -47,7 +47,7 @@ public class RpnEvaluatorTests
         var operators = new Queue<string>();
 
         fractions.Enqueue(new Fraction { Numerator = 2, Denominator = 1 });
-        operators.Enqueue("-");
+        operators.Enqueue("*");
         fractions.Enqueue(new Fraction { Numerator = 2, Denominator = 1 });
 
         var result = _evaluator.Evaluate(fractions, operators);
@@ -61,7 +61,7 @@ public class RpnEvaluatorTests
         var operators = new Queue<string>();
 
         fractions.Enqueue(new Fraction { Numerator = 2, Denominator = 1 });
-        operators.Enqueue("-");
+        operators.Enqueue(":");
         fractions.Enqueue(new Fraction { Numerator = 2, Denominator = 1 });
 
         var result = _evaluator.Evaluate(fractions, operators);

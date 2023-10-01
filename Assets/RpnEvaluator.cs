@@ -21,7 +21,7 @@ public class RpnEvaluator
                     "+" => a + current,
                     "-" => a - current,
                     "*" => a * current,
-                    "/" => a / current,
+                    ":" => a / current,
                     _ => throw new InvalidOperationException($"Unknown operator: {operatorSymbol}")
                 };
             }

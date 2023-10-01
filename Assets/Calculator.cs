@@ -37,7 +37,7 @@ public class Calculator : MonoBehaviour
                 return;
         }
 
-        if ("+-/*".Contains(newText))
+        if ("+-:*".Contains(newText))
         {
             AddCurrentFractionAndOperator(newText);
             UpdateInputField();
