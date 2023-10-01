@@ -62,14 +62,15 @@ public class Calculator : MonoBehaviour
                     break;
                 default:
                 {
-                    if (result.Denominator < 0)
+                    switch (result.Denominator)
                     {
-                        result.Denominator *= -1;
-                        res = "-" + result.Simplify();
-                    }
-                    else
-                    {
-                        res = result.Simplify().ToString();
+                        case < 0:
+                            result.Denominator *= -1;
+                            res = "-" + result.Simplify();
+                            break;
+                        default:
+                            res = result.Simplify().ToString();
+                            break;
                     }
 
                     break;
